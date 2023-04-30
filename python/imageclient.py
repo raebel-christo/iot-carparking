@@ -5,7 +5,7 @@ import socket
 import io
 
 websocket = socket.socket()
-websocket.bind('192.168.1.101', 8000)
+websocket.connect(('192.168.1.101', 8000))
 
 connection = websocket.makefile('wb')
 
@@ -17,7 +17,7 @@ try:
     time.sleep(2)
 
     start = time.time()
-    stream = io.bytesIO()
+    stream = io.BytesIO()
 
     for foo in camera.capture_continuous(stream, 'jpeg'):
         connection.write(struct.pack('<L', stream.tell()))
