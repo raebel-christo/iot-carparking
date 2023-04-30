@@ -1,4 +1,5 @@
 ## MongoDB
+mongodb+srv://raebelchristo:amber47@cluster0.c50zie8.mongodb.net/test
 username: raebelchristo
 password: amber47
 
