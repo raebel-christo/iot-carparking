@@ -5,7 +5,8 @@ from PIL import Image
 import matplotlib.pyplot as plotter
 
 websocket = socket.socket()
-websocket.bind('192.168.1.101', 8000)
+websocket.bind(('192.168.1.101',8000))
+websocket.listen(0)
 
 connection = websocket.accept()[0].makefile('rb')
 
