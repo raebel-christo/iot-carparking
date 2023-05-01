@@ -33,7 +33,12 @@ def scanText(image):
                     img = cv.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
                     img = cv.putText(img, text, (x, y - 10), cv.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 0), 3)
         
-        print(d)
+                print("Confidence Level: {0} > \"{1}\"".format(d['conf'][i], d['text'][i]))
+            elif int(d['conf'][i]) > 20:
+                (text, x, y, w, h) = (d['text'][i], d['left'][i], d['top'][i], d['width'][i], d['height'][i])
+                if text and text.strip() != "":
+                    img = cv.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
+                    img = cv.putText(img, text, (x, y - 10), cv.FONT_HERSHEY_SIMPLEX, 1.2, (255, 0, 0), 1)
         
         print("Scan Complete")
         cv.imshow('img', img)
@@ -69,6 +74,7 @@ try:
         plotter.pause(0.01)
         #plotter.draw()
         if keyboard.is_pressed('s'):
+            plotter.close()
             print("Scanning image")
             scanText(image)
             break
