@@ -1,12 +1,11 @@
 import io
 import socket
 import struct
-import numpy as np
-import cv2 as cv
 from PIL import Image
 import matplotlib.pyplot as plotter
 import keyboard
 import pytesseract
+import cv2 as cv
 from pytesseract import Output
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
