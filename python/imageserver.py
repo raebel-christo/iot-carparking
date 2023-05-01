@@ -1,8 +1,14 @@
 import io
 import socket
 import struct
+import numpy as np
+import cv2 as cv
 from PIL import Image
 import matplotlib.pyplot as plotter
+
+def isBlurredImage(image):
+    pass
+
 
 websocket = socket.socket()
 websocket.bind(('192.168.1.101',8000))
@@ -23,15 +29,14 @@ try:
 
         image = Image.open(image_stream)
 
-        if img is None:
-            img = plotter.imshow(image)
-        else:
-            img.set_data(image)
+        # if img is None:
+        #     img = plotter.imshow(image)
+        # else:
+        #     img.set_data(image)
+        plotter.imshow(image)
         
         plotter.pause(0.01)
         plotter.draw()
-
-        image.verify()
 
 finally:
     connection.close()
