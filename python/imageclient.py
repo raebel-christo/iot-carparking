@@ -12,7 +12,7 @@ connection = websocket.makefile('wb')
 try:
 
     camera = picamera.PiCamera()
-    camera.resolution = (500,480)
+    camera.resolution = (900,900)
     camera.vflip = True
     camera.hflip = True
     camera.start_preview()
