@@ -97,10 +97,10 @@ try:
         image_stream.seek(0)
 
         image = Image.open(image_stream)
-        # plotter.imshow(image)
+        plotter.imshow(image)
         
-        # plotter.pause(0.01)
-        # plotter.close()
+        plotter.pause(0.01)
+        #plotter.close()
         print("Scanning image")
         extractedText = scanText(image)
         current_time = datetime.datetime.now(pytz.timezone('Asia/Kolkata'))
@@ -114,6 +114,9 @@ try:
                         "in_time":current_time
                     })
                     print(x)
+                    running = False
+                elif i==4:
+                    print("No space in parking slots")
                     running = False
 
 except Exception as e:
