@@ -5,10 +5,11 @@ import io
 import time
 
 websocket = socket.socket()
-websocket.connect(('192.168.1.101', 8000))
+if(websocket.connect(('192.168.1.101', 8000))):
+    print("Connected with Server")
 
 connection = websocket.makefile('wb')
-
+print("Initiated stream connection")
 try:
 
     camera = picamera.PiCamera()
@@ -27,6 +28,7 @@ try:
         connection.write(stream.read())
         stream.seek(0)
         stream.truncate()
+        print("Streamed an image")
         time.sleep(0.5)
 
 except KeyboardInterrupt:
