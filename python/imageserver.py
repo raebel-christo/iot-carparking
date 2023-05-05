@@ -6,7 +6,6 @@ from PIL import Image
 
 #Image Processing libraries
 import matplotlib.pyplot as plotter
-import keyboard
 import pytesseract
 import cv2 as cv
 import numpy as np
@@ -16,7 +15,6 @@ import re
 #Database libraries
 import pymongo
 import pytz
-import time
 import datetime as datetime
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
@@ -103,7 +101,7 @@ try:
         #plotter.close()
         print("Scanning image")
         extractedText = scanText(image)
-        current_time = datetime.datetime.now(pytz.timezone('Asia/Kolkata'))
+        current_time = datetime.now(pytz.timezone('Asia/Kolkata'))
 
         if not emptyText(extractedText):
             for i in range(1,5):
