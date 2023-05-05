@@ -13,6 +13,7 @@ pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tessera
 
 
 def scanText(image):
+    extractedText = ""
     cvimage = cv.cvtColor(np.array(image), cv.COLOR_RGB2BGR)
     grayimage = cv.cvtColor(cvimage, cv.COLOR_BGR2GRAY)
     thres = cv.threshold(grayimage,0,255,cv.THRESH_BINARY + cv.THRESH_OTSU)[1]
@@ -32,6 +33,7 @@ def scanText(image):
                 if text and text.strip() != "":
                     img = cv.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
                     img = cv.putText(img, text, (x, y - 10), cv.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 0), 3)
+                    extractedText = extractedText + text.strip()
         
                 print("Confidence Level: {0} > \"{1}\"".format(d['conf'][i], d['text'][i]))
             elif int(d['conf'][i]) > 20:
@@ -43,7 +45,9 @@ def scanText(image):
         
         print("Scan Complete")
         cv.imshow('img', img)
-        cv.waitKey(0)
+        if(extractedText != ""):
+            print("Number plate is " + extractedText)
+            cv.waitKey(0)
 
 
 
@@ -65,21 +69,13 @@ try:
         image_stream.seek(0)
 
         image = Image.open(image_stream)
-
-        # if img is None:
-        #     img = plotter.imshow(image)
-        # else:
-        #     img.set_data(image)
-        plotter.imshow(image)
+        # plotter.imshow(image)
         
-        plotter.pause(0.01)
-        #plotter.draw()
-        if keyboard.is_pressed('s'):
-            plotter.close()
-            print("Scanning image")
-            scanText(image)
-            break
-except KeyboardInterrupt:
+        # plotter.pause(0.01)
+        # plotter.close()
+        print("Scanning image")
+        scanText(image)
+except:
     print("Terminating")
     connection.close()
     websocket.close()
