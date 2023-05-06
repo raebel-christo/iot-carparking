@@ -15,9 +15,28 @@ import re
 #Database libraries
 import pymongo
 import pytz
-import datetime as datetime
+import datetime
+
+#Adafruit libraries
+from Adafruit_IO import MQTTClient
+
+#Helper libraries
+import queue
+
+USER = 'raebelchristo'
+KEY = 'aio_NHyV71dLrRu5QBLqhs0vT364IHTS'
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
+callback_queue = queue.Queue()
+
+def mainThreadCall():
+    while True:
+        try:
+            callback = callback_queue.get(False)
+        except queue.Empty:
+            break
+        callback()
 
 def emptyText(text):
     if text[0].strip() != "" and text[1].strip() != "":
@@ -63,66 +82,102 @@ def scanText(image):
         print("Scan Complete")
         if not emptyText(extractedText):
             cv.imshow('img', img)
-            cv.waitKey(2)
             break
 
     return extractedText    
+
+def performSocketCommunication(collection, mode, payload=0):
+    websocket = socket.socket()
+    websocket.bind(('192.168.1.101',8000))
+    websocket.listen(0)
+    connection = websocket.accept()[0].makefile('rb')
+    try:
+        img = None
+        running = True
+        while running:
+            image_len = struct.unpack('<L',connection.read(struct.calcsize('<L')))[0]
+            if not image_len:
+                break
+
+            image_stream = io.BytesIO()
+            image_stream.write(connection.read(image_len))
+            image_stream.seek(0)
+
+            image = Image.open(image_stream)
+            plotter.imshow(image)
+            
+            plotter.pause(0.01)
+            #plotter.close()
+            print("Scanning image")
+            extractedText = scanText(image)
+            current_time = datetime.datetime.now(pytz.timezone('Asia/Kolkata'))
+
+            if not emptyText(extractedText):
+                if mode == 'insert':
+                    for i in range(1,5):
+                        if not collection.find_one({"slot":"{0}".format(i)}):
+                            x = collection.insert_one({
+                                "slot":"{0}".format(i),
+                                "plate":"{0} {1}".format(extractedText[0], extractedText[1]),
+                                "in_time":current_time
+                            })
+                            print(x)
+                            running = False
+                            break
+                        elif i==4:
+                            print("No space in parking slots")
+                            running = False
+                elif mode == 'delete':
+                    x = collection.delete_one({
+                        "slot":f"{payload}"
+                    })
+                    print(x)
+                    running = False
+            
+            plotter.close()
+
+    except Exception as e:
+        print("Terminating due to " + e)
+        connection.close()
+        websocket.close()
+        exit(1)
+
+    finally:
+        print("Socket Closed")
+        connection.close()
+        websocket.close()
+
+def connected(client):
+    print("MQTT Client Connected to Adafruit")
+    if client.subscribe('enteringcar'):
+        print("Connected to feeds: [enteringcar]")
+
+def disconnected(client):
+    print('MQTT has disconnected')
+
+def message(client, feed, payload):
+    global collection
+    print(f'{feed} has a new value: {payload}')
+    if payload == '1':
+        callback_queue.put(performSocketCommunication(collection,mode='insert'))
+        print("Sending 0 to feed")
+        client.publish('enteringcar', 0)
+
+client = MQTTClient(USER,KEY)
+
+client.on_connect = connected
+client.on_disconnect = disconnected
+client.on_message = message
+client.connect()
 
 uri = "mongodb+srv://raebelchristo:amber47@cluster0.c50zie8.mongodb.net/?retryWrites=true&w=majority"
 database = pymongo.MongoClient(uri)
 if database:
     print("Database Connected")
+
 collection = database['carparking']['cars']
 
-websocket = socket.socket()
-websocket.bind(('192.168.1.101',8000))
-websocket.listen(0)
 
-connection = websocket.accept()[0].makefile('rb')
-
-
-
-try:
-    img = None
-    running = True
-    while running:
-        image_len = struct.unpack('<L',connection.read(struct.calcsize('<L')))[0]
-        if not image_len:
-            break
-
-        image_stream = io.BytesIO()
-        image_stream.write(connection.read(image_len))
-        image_stream.seek(0)
-
-        image = Image.open(image_stream)
-        plotter.imshow(image)
-        
-        plotter.pause(0.01)
-        #plotter.close()
-        print("Scanning image")
-        extractedText = scanText(image)
-        current_time = datetime.now(pytz.timezone('Asia/Kolkata'))
-
-        if not emptyText(extractedText):
-            for i in range(1,5):
-                if not collection.find_one({"slot":"{0}".format(i)}):
-                    x = collection.insert_one({
-                        "slot":"{0}".format(i),
-                        "plate":"{0} {1}".format(extractedText[0], extractedText[1]),
-                        "in_time":current_time
-                    })
-                    print(x)
-                    running = False
-                elif i==4:
-                    print("No space in parking slots")
-                    running = False
-
-except Exception as e:
-    print("Terminating due to " + e)
-    connection.close()
-    websocket.close()
-    exit(1)
-
-finally:
-    connection.close()
-    websocket.close()
+while True:
+    client.loop()
+    mainThreadCall
