@@ -5,8 +5,9 @@ import io
 import time
 
 websocket = socket.socket()
-if(websocket.connect(('192.168.1.101', 8000))):
-    print("Connected with Server")
+websocket.connect(('192.168.1.101', 8000))
+
+print("Connnected")
 
 connection = websocket.makefile('wb')
 print("Initiated stream connection")
