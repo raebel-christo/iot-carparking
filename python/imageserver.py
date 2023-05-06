@@ -86,7 +86,10 @@ def scanText(image):
 
     return extractedText    
 
-def performSocketCommunication(websocket, collection, mode, payload=0):
+def performSocketCommunication(collection, mode, payload=0):
+    websocket = socket.socket()
+    websocket.bind(('192.168.1.101',8000))
+    websocket.listen(0)
     connection = websocket.accept()[0].makefile('rb')
     try:
         img = None
@@ -153,11 +156,10 @@ def disconnected(client):
     print('MQTT has disconnected')
 
 def message(client, feed, payload):
-    global websocket
     global collection
     print(f'{feed} has a new value: {payload}')
     if payload == '1':
-        callback_queue.put(performSocketCommunication(websocket, collection,mode='insert'))
+        callback_queue.put(performSocketCommunication(collection,mode='insert'))
         print("Sending 0 to feed")
         client.publish('enteringcar', 0)
 
@@ -174,9 +176,7 @@ if database:
     print("Database Connected")
 
 collection = database['carparking']['cars']
-websocket = socket.socket()
-websocket.bind(('192.168.1.101',8000))
-websocket.listen(0)
+
 
 while True:
     client.loop()
