@@ -87,8 +87,6 @@ def scanText(image):
     return extractedText    
 
 def performSocketCommunication(websocket, collection, mode, payload=0):
-    if websocket.listen(0):
-        print("Connection Received on socket")
     connection = websocket.accept()[0].makefile('rb')
     try:
         img = None
@@ -178,6 +176,7 @@ if database:
 collection = database['carparking']['cars']
 websocket = socket.socket()
 websocket.bind(('192.168.1.101',8000))
+websocket.listen(0)
 
 while True:
     client.loop()
