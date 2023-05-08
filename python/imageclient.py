@@ -4,38 +4,59 @@ import socket
 import io
 import time
 
-websocket = socket.socket()
-websocket.connect(('192.168.1.101', 8000))
 
-print("Connnected")
+def establish_connection(sock):
+    c = 1
+    while True:
+        try:
+            sock.connect(('192.168.1.101',8000))
+        except socket.timeout:
+            print(f"Retrying connection {c}")
+            c = c+1
+            time.sleep(2)
+        else:
+            break
+    print("Connected to host")
+    connection = sock.makefile('wb')
+    print("Initiated stream connection")
+    return (connection)
 
-connection = websocket.makefile('wb')
-print("Initiated stream connection")
-try:
+sock = socket.socket()
+connection = establish_connection(sock)
 
-    camera = picamera.PiCamera()
-    camera.resolution = (900,900)
-    camera.vflip = True
-    camera.hflip = True
-    camera.start_preview()
-    time.sleep(2)
+while True:
+    try:
 
-    stream = io.BytesIO()
+        camera = picamera.PiCamera()
+        camera.resolution = (900,900)
+        camera.vflip = True
+        camera.hflip = True
+        camera.start_preview()
+        time.sleep(2)
 
-    for foo in camera.capture_continuous(stream, 'jpeg'):
-        connection.write(struct.pack('<L', stream.tell()))
-        connection.flush()
-        stream.seek(0)
-        connection.write(stream.read())
-        stream.seek(0)
-        stream.truncate()
-        print("Streamed an image")
-        time.sleep(0.5)
+        stream = io.BytesIO()
 
-except KeyboardInterrupt:
-    print("Terminating Camera Stream")
-    connection.write(struct.pack('<L', 0))
+        for foo in camera.capture_continuous(stream, 'jpeg'):
+            connection.write(struct.pack('<L', stream.tell()))
+            connection.flush()
+            stream.seek(0)
+            connection.write(stream.read())
+            stream.seek(0)
+            stream.truncate()
+            print("Streamed an image")
+            time.sleep(0.5)
 
-finally:
-    connection.close()
-    websocket.close()
+    except KeyboardInterrupt:
+        print("Terminating Camera Stream")
+        connection.write(struct.pack('<L', 0))
+        break
+
+    except BrokenPipeError:
+        print("Lost connection with host. Retrying connection in 2 seconds")
+        time.sleep(2)
+        connection = establish_connection(sock)
+
+connection.close()
+sock.close()
+
+print("The program has concluded")
