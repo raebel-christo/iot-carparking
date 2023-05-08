@@ -10,8 +10,10 @@ def establish_connection(sock):
     while True:
         try:
             sock.connect(('192.168.1.101',8000))
-        except socket.timeout:
-            print(f"Retrying connection {c}")
+        except socket.error as e:
+            if(e.errno == 106):
+                break
+            print(f"Retrying connection {c} [{e.strerror}]")
             c = c+1
             time.sleep(2)
         else:
@@ -51,8 +53,8 @@ while True:
         connection.write(struct.pack('<L', 0))
         break
 
-    except BrokenPipeError:
-        print("Lost connection with host. Retrying connection in 2 seconds")
+    except socket.error as e:
+        print(f"Lost connection with host [{e.strerror}]. Retrying connection in 2 seconds")
         time.sleep(2)
         connection = establish_connection(sock)
 
