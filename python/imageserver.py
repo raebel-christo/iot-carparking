@@ -87,9 +87,6 @@ def scanText(image):
     return extractedText    
 
 def performSocketCommunication(collection, mode, payload=0):
-    websocket = socket.socket()
-    websocket.bind(('192.168.1.101',8000))
-    websocket.listen(0)
     connection = websocket.accept()[0].makefile('rb')
     try:
         img = None
@@ -137,15 +134,9 @@ def performSocketCommunication(collection, mode, payload=0):
             plotter.close()
 
     except Exception as e:
-        print("Terminating due to " + e)
-        connection.close()
+        print("Terminating due to " + e.strerr)
         websocket.close()
         exit(1)
-
-    finally:
-        print("Socket Closed")
-        connection.close()
-        websocket.close()
 
 def connected(client):
     print("MQTT Client Connected to Adafruit")
@@ -177,7 +168,10 @@ if database:
 
 collection = database['carparking']['cars']
 
+websocket = socket.socket()
+websocket.bind(('192.168.1.101',8000))
+websocket.listen(0)
 
 while True:
-    client.loop()
-    mainThreadCall
+    client.loop_blocking()
+    mainThreadCall()
