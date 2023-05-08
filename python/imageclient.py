@@ -11,6 +11,8 @@ def establish_connection(sock):
         try:
             sock.connect(('192.168.1.101',8000))
         except socket.error as e:
+            if(e.errno == 106):
+                break
             print(f"Retrying connection {c} [{e.strerror}]")
             c = c+1
             time.sleep(2)
