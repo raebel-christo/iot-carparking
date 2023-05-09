@@ -136,7 +136,7 @@ def performSocketCommunication(collection, mode, payload=0):
             plotter.close()
 
     except Exception as e:
-        print("Terminating due to " + e.strerr)
+        print(f"Terminating due to [{str(e)}]")
         websocket.close()
         exit(1)
 
@@ -175,5 +175,6 @@ websocket.bind(('192.168.1.101',8000))
 websocket.listen(0)
 
 while True:
+    print(".....")
     client.loop_blocking()
     mainThreadCall()
