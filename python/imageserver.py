@@ -82,6 +82,8 @@ def scanText(image):
         print("Scan Complete")
         if not emptyText(extractedText):
             cv.imshow('img', img)
+            cv.waitKey(0)
+            cv.destroyAllWindows()
             break
 
     return extractedText    
