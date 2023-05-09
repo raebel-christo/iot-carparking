@@ -14,13 +14,19 @@ def establish_connection(sock):
     while True:
         try:
             sock.connect(('192.168.1.101',8000))
+            print("Socketed connected to 192.168.1.101")
         except socket.error as e:
             if(e.errno == 106):
                 print("Broken Pipe detected. Rebooting connection")
                 sock.close()
                 sock = socket.socket()
-                sock.connect(('192.168.1.101',8000))
-                break
+                try:
+                    sock.connect(('192.168.1.101',8000))
+                    print("Socket reconnected")
+                except e:
+                    print(f"Reconnection failed: {str(e)}")
+                else:
+                    break
             print(f"Retrying connection {c} [{e.strerror}]")
             c = c+1
             time.sleep(2)
@@ -29,7 +35,6 @@ def establish_connection(sock):
                 exit(4)
         else:
             print("Connected to host")
-            print("Initiated stream connection")
             break
     connection = sock.makefile('wb')
     return (connection)
