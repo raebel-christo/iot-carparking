@@ -7,6 +7,33 @@ from Adafruit_IO import MQTTClient
 
 client = MQTTClient('raebelchristo', 'aio_NHyV71dLrRu5QBLqhs0vT364IHTS')
 
+sock = socket.socket()
+
+def establish_connection(sock):
+    c = 1
+    while True:
+        try:
+            sock.connect(('192.168.1.101',8000))
+        except socket.error as e:
+            if(e.errno == 106):
+                print("Broken Pipe detected. Rebooting connection")
+                sock.close()
+                sock = socket.socket()
+                sock.connect(('192.168.1.101',8000))
+                break
+            print(f"Retrying connection {c} [{e.strerror}]")
+            c = c+1
+            time.sleep(2)
+            if c>50:
+                print("Connection is dead, please reboot manually")
+                exit(4)
+        else:
+            print("Connected to host")
+            print("Initiated stream connection")
+            break
+    connection = sock.makefile('wb')
+    return (connection)
+
 newDataReceived = False
 
 def connected(client):
@@ -22,30 +49,12 @@ def disconnected(client):
 
 def message(client, feed_id, payload):
     print(f"Adafruit sent: [{payload}]")
+    global newDataReceived
     if payload=="1":
         newDataReceived=True
     else:
         newDataReceived=False
 
-def establish_connection(sock):
-    c = 1
-    while True:
-        try:
-            sock.connect(('192.168.1.101',8000))
-        except socket.error as e:
-            if(e.errno == 106):
-                break
-            print(f"Retrying connection {c} [{e.strerror}]")
-            c = c+1
-            time.sleep(2)
-        else:
-            break
-    print("Connected to host")
-    connection = sock.makefile('wb')
-    print("Initiated stream connection")
-    return (connection)
-
-sock = socket.socket()
 connection = establish_connection(sock)
 client.on_connect = connected
 client.disconnect = disconnected
@@ -82,6 +91,8 @@ while True:
 
         except socket.error as e:
             print(f"Lost connection with host [{e.strerror}]. Retrying connection in 2 seconds")
+            camera.stop_preview()
+            camera.close()
             time.sleep(2)
             connection = establish_connection(sock)
 
