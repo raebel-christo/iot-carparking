@@ -47,6 +47,9 @@ def establish_connection(sock):
 
 sock = socket.socket()
 connection = establish_connection(sock)
+client.on_connect = connected
+client.disconnect = disconnected
+client.on_message = message
 client.connect()
 client.loop_background()
 
