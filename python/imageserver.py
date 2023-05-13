@@ -30,7 +30,19 @@ pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tessera
 
 callback_queue = queue.Queue()
 
+uri = "mongodb+srv://raebelchristo:amber47@cluster0.c50zie8.mongodb.net/?retryWrites=true&w=majority"
+database = pymongo.MongoClient(uri)
+if database:
+    print("Database Connected")
+
+collection = database['carparking']['cars']
+
+websocket = socket.socket()
+websocket.bind(('192.168.1.101',8000))
+websocket.listen(10)
+
 def mainThreadCall():
+    global callback_queue
     while True:
         try:
             callback = callback_queue.get(False)
@@ -89,9 +101,9 @@ def scanText(image):
     return extractedText    
 
 def performSocketCommunication(collection, mode, payload=0):
+    global websocket
     connection = websocket.accept()[0].makefile('rb')
     try:
-        img = None
         running = True
         while running:
             image_len = struct.unpack('<L',connection.read(struct.calcsize('<L')))[0]
@@ -106,9 +118,10 @@ def performSocketCommunication(collection, mode, payload=0):
             plotter.imshow(image)
             
             plotter.pause(0.01)
-            #plotter.close()
             print("Scanning image")
+
             extractedText = scanText(image)
+
             current_time = datetime.datetime.now(pytz.timezone('Asia/Kolkata'))
 
             if not emptyText(extractedText):
@@ -150,6 +163,7 @@ def disconnected(client):
 
 def message(client, feed, payload):
     global collection
+    global callback_queue
     print(f'{feed} has a new value: {payload}')
     if payload == '1':
         callback_queue.put(performSocketCommunication(collection,mode='insert'))
@@ -162,17 +176,6 @@ client.on_connect = connected
 client.on_disconnect = disconnected
 client.on_message = message
 client.connect()
-
-uri = "mongodb+srv://raebelchristo:amber47@cluster0.c50zie8.mongodb.net/?retryWrites=true&w=majority"
-database = pymongo.MongoClient(uri)
-if database:
-    print("Database Connected")
-
-collection = database['carparking']['cars']
-
-websocket = socket.socket()
-websocket.bind(('192.168.1.101',8000))
-websocket.listen(0)
 
 while True:
     print(".....")
