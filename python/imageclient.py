@@ -3,6 +3,8 @@ import struct
 import socket
 import io
 import time
+import os
+import sys
 from Adafruit_IO import MQTTClient
 
 client = MQTTClient('raebelchristo', 'aio_NHyV71dLrRu5QBLqhs0vT364IHTS')
@@ -19,14 +21,8 @@ def establish_connection(sock):
             if(e.errno == 106):
                 print("Broken Pipe detected. Rebooting connection")
                 sock.close()
-                sock = socket.socket()
-                try:
-                    sock.connect(('192.168.1.101',8000))
-                    print("Socket reconnected")
-                except e:
-                    print(f"Reconnection failed: {str(e)}")
-                else:
-                    break
+                os.execv(sys.executable, ['python'] + [sys.argv[0]])
+                
             print(f"Retrying connection {c} [{e.strerror}]")
             c = c+1
             time.sleep(2)
