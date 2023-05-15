@@ -145,8 +145,17 @@ def performSocketCommunication(collection, mode, payload=0):
                     })
                     print(x)
                     running = False
-            
-            plotter.close()
+                elif mode == 'query':
+                    x = collection.find_one({
+                        "plate":"{0} {1}".format(extractedText[0], extractedText[1])
+                    }, {
+                        "slot":1
+                    })
+                    if x:
+                        print(x)
+                    else:
+                        print("Vehicle Not found")            
+        plotter.close()
 
     except Exception as e:
         print(f"Terminating due to [{str(e)}]")
@@ -155,7 +164,7 @@ def performSocketCommunication(collection, mode, payload=0):
 
 def connected(client):
     print("MQTT Client Connected to Adafruit")
-    if client.subscribe('enteringcar'):
+    if client.subscribe('gate-sensor'):
         print("Connected to feeds: [enteringcar]")
 
 def disconnected(client):
@@ -166,6 +175,12 @@ def message(client, feed, payload):
     global callback_queue
     print(f'{feed} has a new value: {payload}')
     if payload == '1':
+        print("Vehicle at entry: Performing Insert Operation")
+        callback_queue.put(performSocketCommunication(collection,mode='insert'))
+        print("Sending 0 to feed")
+        client.publish('enteringcar', 0)
+    if payload == '2':
+        print("Vehicle at entry: Query Operation")
         callback_queue.put(performSocketCommunication(collection,mode='insert'))
         print("Sending 0 to feed")
         client.publish('enteringcar', 0)

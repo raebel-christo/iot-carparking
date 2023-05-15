@@ -38,7 +38,7 @@ def establish_connection(sock):
 newDataReceived = False
 
 def connected(client):
-    client.subscribe('enteringcar')
+    client.subscribe('gate-sensor')
 
 def disconnected(client):
     print("Lost connection to Adafruit")
