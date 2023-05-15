@@ -153,7 +153,9 @@ def performSocketCommunication(collection, mode, payload=0):
                     })
                     if x:
                         print(f"{x['slot']} is leaving")
-                        client.publish('leavingcar', int(x['slot']))
+                        val = int(x['slot'])
+                        if client.publish('leavingcar', val):
+                            print(f'Sent {val}')
                     else:
                         print("Vehicle Not found")
                     running = False            
