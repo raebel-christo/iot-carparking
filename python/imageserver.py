@@ -152,9 +152,11 @@ def performSocketCommunication(collection, mode, payload=0):
                         "slot":1
                     })
                     if x:
-                        print(x)
+                        print(f"{x['slot']} is leaving")
+                        client.publish('leavingcar', int(x['slot']))
                     else:
-                        print("Vehicle Not found")            
+                        print("Vehicle Not found")
+                    running = False            
         plotter.close()
 
     except Exception as e:
