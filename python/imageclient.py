@@ -51,7 +51,7 @@ def disconnected(client):
 def message(client, feed_id, payload):
     print(f"Adafruit sent: [{payload}]")
     global newDataReceived
-    if payload=="1":
+    if payload=="1" || payload=="2":
         newDataReceived=True
     else:
         newDataReceived=False

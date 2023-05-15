@@ -181,7 +181,7 @@ def message(client, feed, payload):
         client.publish('enteringcar', 0)
     if payload == '2':
         print("Vehicle at entry: Query Operation")
-        callback_queue.put(performSocketCommunication(collection,mode='insert'))
+        callback_queue.put(performSocketCommunication(collection,mode='query'))
         print("Sending 0 to feed")
         client.publish('enteringcar', 0)
 
