@@ -12,7 +12,7 @@ function App() {
       </nav>
       <div className="p-14 grid grid-rows-2 grid-flow-col gap-12">
         {/* <div className="bg-red-400 px-auto h-48">Hi</div> */}
-        <div><ParkedData/></div>
+        <div className="w-full"><ParkedData/></div>
         <ParkingAreaData />
         <div className="row-span-2  bg-red-400 px-auto">Scan Me QR</div>
       </div>

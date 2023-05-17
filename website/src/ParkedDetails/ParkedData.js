@@ -14,7 +14,7 @@ export const ParkedData = ()=>{
         },1000);
         return ()=>clearInterval(interval); 
     }, []);
-      if(products.length>=0) 
+      if(products.length>0) 
       return (
       <div className={`box-content border-solid border-black px-auto grid grid-rows-${products.length+1}`}>
         <div className="flex flex-row flex-wrap h-12 text-center"> 
