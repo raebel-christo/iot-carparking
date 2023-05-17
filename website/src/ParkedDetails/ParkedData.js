@@ -17,10 +17,10 @@ export const ParkedData = ()=>{
       if(products.length>=0) 
       return (
       <div className={`box-content border-solid border-black px-auto grid grid-rows-${products.length+1}`}>
-        <div className="flex flex-row flex-wrap h-12 leading-3 text-center"> 
-          <div className="w-1/6 border-black border-2">Slot No</div>
-          <div className="w-1/3 border-black border-y-2">Plate Number</div>
-          <div className="w-1/2 border-black border-2">Time In</div> 
+        <div className="flex flex-row flex-wrap h-12 text-center"> 
+          <div className="w-1/6 border-black py-2 border-2">Slot No</div>
+          <div className="w-1/3 border-black py-2 border-y-2">Plate Number</div>
+          <div className="w-1/2 border-black py-2 border-2">Time In</div> 
         </div>
         {
           products.map(eachProduct=>{
