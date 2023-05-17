@@ -2,9 +2,13 @@ const express = require('express');
 const mongoose = require('mongoose');
 const router = require('./routes')
 const app = express();
+const cors=require('cors');     
 
 app.use(express.json());
 app.use(router);
+// app.use(cors({
+//     origin: "http://localhost:5000"
+// }));
 
 mongoose
     .connect("mongodb+srv://raebelchristo:amber47@cluster0.c50zie8.mongodb.net/carparking?retryWrites=true&w=majority",{
@@ -13,8 +17,8 @@ mongoose
     .then(()=>console.log("MongoDB connected pa"))
     .catch((err)=>console.log("Error", err));
 
-app.listen(3000, ()=>{
-    console.log("On port 3000");
+app.listen(5000, ()=>{
+    console.log("On port 5000");
 });
 
 const sleep = (ms)=>{

@@ -16,19 +16,14 @@ app.post("/add_user", async (request, response) => {
     }
 });
 
-// app.get("/users/:slot", async (request, response) => {
-//     slotId=request.params.slot;
-
-//     const users = await userModel.find(({slot:slotId}));
-//     console.log("Hi");
-//     try {
-//       response.send('Hi guys');
-//       console.log(users);
-//       response.send(users);
-//     } catch (error) {
-//       response.status(500).send(error);
-//     }
-// });
+app.get("/users", async (request, response) => {
+    const users = await userModel.find();
+    try {
+      response.send(users);
+    } catch (error) {
+      response.status(500).send(error);
+    }
+});
 
 module.exports = app;
 
