@@ -22,6 +22,7 @@ from Adafruit_IO import MQTTClient
 
 #Helper libraries
 import queue
+import time
 
 USER = 'raebelchristo'
 KEY = 'aio_NHyV71dLrRu5QBLqhs0vT364IHTS'
@@ -181,13 +182,11 @@ def message(client, feed, payload):
     if payload == '1':
         print("Vehicle at entry: Performing Insert Operation")
         callback_queue.put(performSocketCommunication(collection,mode='insert'))
-        print("Sending 0 to feed")
-        client.publish('enteringcar', 0)
+        print("Controlling gates")
+        client.publish('leavingcar', -3)
     if payload == '2':
         print("Vehicle at entry: Query Operation")
         callback_queue.put(performSocketCommunication(collection,mode='query'))
-        print("Sending 0 to feed")
-        client.publish('enteringcar', 0)
 
 client = MQTTClient(USER,KEY)
 
